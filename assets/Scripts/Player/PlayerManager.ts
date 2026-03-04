@@ -6,61 +6,40 @@ import {
   DIRECTION_ENUM,
   DIRECTION_ORDER_ENUM,
   ENTITY_STATE_ENUM,
+  ENTITY_TYPE_ENUM,
   EVENT_ENUM,
   PARAMS_NAME_ENUM,
 } from '../../Enums'
 import EventManager from '../../Runtime/EventManager'
 import { PlayerStateMachine } from './PlayerStateMachine'
+import { EntityManager } from '../../Base/EntityManager'
 const { ccclass, property } = _decorator
 
 @ccclass('PlayerManager')
-export class PlayerManager extends Component {
-  x: number = 0
-  y: number = 0
+export class PlayerManager extends EntityManager {
   targetX: number = 0
   targetY: number = 0
   private readonly speed = 1 / 10
-  fsm: PlayerStateMachine
-
-  private _direction: DIRECTION_ENUM
-  private _state: ENTITY_STATE_ENUM
-
-  get direction() {
-    return this._direction
-  }
-
-  set direction(newDirection: DIRECTION_ENUM) {
-    this._direction = newDirection
-    this.fsm.setParams(PARAMS_NAME_ENUM.DIRECTION, DIRECTION_ORDER_ENUM[this._direction])
-  }
-
-  get state() {
-    return this._state
-  }
-
-  set state(newState: ENTITY_STATE_ENUM) {
-    this._state = newState
-    this.fsm.setParams(this._state, true)
-  }
 
   async init() {
-    const sprite = this.addComponent(Sprite)
-    sprite.sizeMode = Sprite.SizeMode.CUSTOM
-
-    const transform = this.getComponent(UITransform)
-    transform.setContentSize(TILE_WIDTH * 4, TILE_HEIGHT * 4)
-
     this.fsm = this.addComponent(PlayerStateMachine)
     await this.fsm.init()
+    super.init({
+      x: 0,
+      y: 0,
+      type: ENTITY_TYPE_ENUM.PLAYER,
+      direction: DIRECTION_ENUM.TOP,
+      state: ENTITY_STATE_ENUM.IDLE,
+    })
     this.direction = DIRECTION_ENUM.TOP
     this.state = ENTITY_STATE_ENUM.IDLE
 
     EventManager.Instance.on(EVENT_ENUM.PLAYER_CTRL, this.move, this)
   }
 
-  protected update(dt: number): void {
+  protected update(): void {
     this.updateXY()
-    this.node.setPosition(this.x * TILE_WIDTH - TILE_WIDTH * 1.5, -this.y * TILE_HEIGHT + TILE_HEIGHT * 1.5)
+    super.update()
   }
 
   updateXY() {

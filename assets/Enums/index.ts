@@ -54,3 +54,7 @@ export enum DIRECTION_ORDER_ENUM {
   LEFT,
   RIGHT,
 }
+
+export enum ENTITY_TYPE_ENUM {
+  PLAYER = 'PLAYER',
+}
