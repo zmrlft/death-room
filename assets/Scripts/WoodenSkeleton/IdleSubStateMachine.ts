@@ -5,7 +5,7 @@ import State from '../../Base/State'
 import StateMachine from '../../Base/StateMachine'
 import DirectionSubStateMachine from '../../Base/DirectionSubStateMachine'
 
-const BAST_URL = 'texture/player/idle'
+const BAST_URL = 'texture/woodenskeleton/idle'
 
 export default class IdleSubStateMachine extends DirectionSubStateMachine {
   constructor(fsm: StateMachine) {
