@@ -1,7 +1,7 @@
 import { animation, AnimationClip, Sprite, SpriteFrame } from 'cc'
 import { PlayerStateMachine } from '../Scripts/Player/PlayerStateMachine'
 import ResourceManager from '../Runtime/ResourceManager'
-import { StateMachine } from './StateMachine'
+import StateMachine from './StateMachine'
 
 const ANIMATION_SPEED = 1 / 8
 export default class State {

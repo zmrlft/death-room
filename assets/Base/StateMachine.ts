@@ -12,14 +12,14 @@ interface IParamsValue {
   value: ParamsValueType
 }
 
-export const getIntParamsTrigger = () => {
+export const getInitParamsTrigger = () => {
   return {
     type: FSM_PARAMS_TYPE_ENUM.TRIGGER,
     value: false,
   }
 }
 
-export const getIntParamsNumber = () => {
+export const getInitParamsNumber = () => {
   return {
     type: FSM_PARAMS_TYPE_ENUM.NUMBER,
     value: 1,
@@ -27,7 +27,7 @@ export const getIntParamsNumber = () => {
 }
 
 @ccclass('StateMachine')
-export abstract class StateMachine extends Component {
+export default abstract class StateMachine extends Component {
   private _currentState: State | SubStateMachine = null
   params: Map<string, IParamsValue> = new Map()
   stateMachines: Map<string, State | SubStateMachine> = new Map()
