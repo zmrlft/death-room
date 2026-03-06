@@ -20,6 +20,7 @@ const { ccclass, property } = _decorator
 export class PlayerManager extends EntityManager {
   targetX: number = 0
   targetY: number = 0
+  isMoving: boolean = false
   private readonly speed = 1 / 10
 
   async init() {
@@ -36,6 +37,7 @@ export class PlayerManager extends EntityManager {
     this.state = ENTITY_STATE_ENUM.IDLE
 
     EventManager.Instance.on(EVENT_ENUM.PLAYER_CTRL, this.inputHandle, this)
+    EventManager.Instance.on(EVENT_ENUM.ATTACK_PLAYER, this.onDead, this)
   }
 
   protected update(): void {
@@ -56,13 +58,37 @@ export class PlayerManager extends EntityManager {
       this.y += this.speed
     }
 
-    if (Math.abs(this.targetX - this.x) <= 0.1 && Math.abs(this.targetY - this.y) <= 0.1) {
+    if (Math.abs(this.targetX - this.x) <= 0.1 && Math.abs(this.targetY - this.y) <= 0.1 && this.isMoving) {
       this.x = this.targetX
       this.y = this.targetY
+      this.isMoving = false
+      EventManager.Instance.emit(EVENT_ENUM.PLAY_MOVE_END)
     }
   }
 
+  onDead(type: ENTITY_STATE_ENUM) {
+    this.state = type
+  }
+
   inputHandle(inputDirection: CONTROLLER_ENUM) {
+    if (this.isMoving) {
+      return
+    }
+
+    if (
+      this.state === ENTITY_STATE_ENUM.DEATH ||
+      this.state === ENTITY_STATE_ENUM.AIRDEATH ||
+      this.state === ENTITY_STATE_ENUM.ATTACK
+    ) {
+      return
+    }
+
+    const id = this.willAttack(inputDirection)
+    if (id) {
+      EventManager.Instance.emit(EVENT_ENUM.ATTACK_ENEMY, id)
+      return
+    }
+
     if (this.willBlock(inputDirection)) {
       return
     }
@@ -72,12 +98,16 @@ export class PlayerManager extends EntityManager {
   move(inputDirection: CONTROLLER_ENUM) {
     if (inputDirection === CONTROLLER_ENUM.TOP) {
       this.targetY -= 1
+      this.isMoving = true
     } else if (inputDirection === CONTROLLER_ENUM.BOTTOM) {
       this.targetY += 1
+      this.isMoving = true
     } else if (inputDirection === CONTROLLER_ENUM.LEFT) {
       this.targetX -= 1
+      this.isMoving = true
     } else if (inputDirection === CONTROLLER_ENUM.RIGHT) {
       this.targetX += 1
+      this.isMoving = true
     } else if (inputDirection === CONTROLLER_ENUM.TURNLEFT) {
       if (this.direction === DIRECTION_ENUM.TOP) {
         this.direction = DIRECTION_ENUM.LEFT
@@ -88,6 +118,7 @@ export class PlayerManager extends EntityManager {
       } else if (this.direction === DIRECTION_ENUM.RIGHT) {
         this.direction = DIRECTION_ENUM.TOP
       }
+      EventManager.Instance.emit(EVENT_ENUM.PLAY_MOVE_END)
       this.state = ENTITY_STATE_ENUM.TURNLEFT
     } else if (inputDirection === CONTROLLER_ENUM.TURNRIGHT) {
       if (this.direction === DIRECTION_ENUM.TOP) {
@@ -99,8 +130,52 @@ export class PlayerManager extends EntityManager {
       } else if (this.direction === DIRECTION_ENUM.RIGHT) {
         this.direction = DIRECTION_ENUM.BOTTOM
       }
+      EventManager.Instance.emit(EVENT_ENUM.PLAY_MOVE_END)
       this.state = ENTITY_STATE_ENUM.TURNRIGHT
     }
+  }
+
+  willAttack(inputDirection: CONTROLLER_ENUM) {
+    const enemies = DataManager.Instance.enemies.filter(enemy => enemy.state !== ENTITY_STATE_ENUM.DEATH)
+    for (let i = 0; i < enemies.length; i++) {
+      const enemy = enemies[i]
+      const { x: enemyX, y: enemyY, id: enemyId } = enemy
+      if (
+        this.direction === DIRECTION_ENUM.TOP &&
+        inputDirection === CONTROLLER_ENUM.TOP &&
+        enemyY === this.targetY - 2 &&
+        enemyX === this.x
+      ) {
+        this.state = ENTITY_STATE_ENUM.ATTACK
+        return enemyId
+      } else if (
+        this.direction === DIRECTION_ENUM.BOTTOM &&
+        inputDirection === CONTROLLER_ENUM.BOTTOM &&
+        enemyY === this.targetY + 2 &&
+        enemyX === this.x
+      ) {
+        this.state = ENTITY_STATE_ENUM.ATTACK
+        return enemyId
+      } else if (
+        this.direction === DIRECTION_ENUM.LEFT &&
+        inputDirection === CONTROLLER_ENUM.LEFT &&
+        enemyX === this.targetX - 2 &&
+        enemyY === this.y
+      ) {
+        this.state = ENTITY_STATE_ENUM.ATTACK
+        return enemyId
+      } else if (
+        this.direction === DIRECTION_ENUM.RIGHT &&
+        inputDirection === CONTROLLER_ENUM.RIGHT &&
+        enemyX === this.targetX + 2 &&
+        enemyY === this.y
+      ) {
+        this.state = ENTITY_STATE_ENUM.ATTACK
+        return enemyId
+      }
+    }
+
+    return ''
   }
 
   willBlock(type: CONTROLLER_ENUM) {

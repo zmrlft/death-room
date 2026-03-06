@@ -16,7 +16,7 @@ export default class EventManager extends Singleton {
     }
   }
 
-  Off(eventName: string, func: Function) {
+  off(eventName: string, func: Function) {
     if (this.eventDic.has(eventName)) {
       const index = this.eventDic.get(eventName).indexOf(func)
       index > -1 && this.eventDic.get(eventName).splice(index, 1)

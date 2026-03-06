@@ -606,7 +606,7 @@
     "component": "",
     "_componentId": "c34f8D9DK9It4KLTQwp+HYs",
     "handler": "handleCtrl",
-    "customEventData": "TURN_LEFT"
+    "customEventData": "TURNLEFT"
   },
   {
     "__type__": "cc.Node",
@@ -1143,7 +1143,7 @@
     "component": "",
     "_componentId": "c34f8D9DK9It4KLTQwp+HYs",
     "handler": "handleCtrl",
-    "customEventData": "BUTTOM"
+    "customEventData": "BOTTOM"
   },
   {
     "__type__": "cc.Node",
@@ -1322,7 +1322,7 @@
     "component": "",
     "_componentId": "c34f8D9DK9It4KLTQwp+HYs",
     "handler": "handleCtrl",
-    "customEventData": ""
+    "customEventData": "TURNRIGHT"
   },
   {
     "__type__": "cc.Node",

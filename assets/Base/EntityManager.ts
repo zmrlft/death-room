@@ -11,10 +11,12 @@ import {
 import { PlayerStateMachine } from '../Scripts/Player/PlayerStateMachine'
 import { IENTITY } from '../Levels'
 import { ENTITY_TYPE_ENUM } from '../Enums'
+import { randomByLen } from '../Utils'
 const { ccclass, property } = _decorator
 
 @ccclass('EntityManager')
 export class EntityManager extends Component {
+  id: string = randomByLen(12)
   x: number = 0
   y: number = 0
   fsm: PlayerStateMachine
