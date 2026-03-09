@@ -8,6 +8,7 @@ import EventManager from '../../Runtime/EventManager'
 import { EVENT_ENUM } from '../../Enums'
 import { PlayerManager } from '../Player/PlayerManager'
 import { WoodenSkeletonManager } from '../WoodenSkeleton/WoodenSkeletonManager'
+import { DoorManager } from '../Door/DoorManager'
 const { ccclass, property } = _decorator
 
 @ccclass('BattleManager')
@@ -20,7 +21,7 @@ export class BattleManager extends Component {
   }
 
   onDestroy(): void {
-    EventManager.Instance.Off(EVENT_ENUM.NEXT_LEVEL, this.nextLevel)
+    EventManager.Instance.off(EVENT_ENUM.NEXT_LEVEL, this.nextLevel)
   }
 
   start() {
@@ -40,6 +41,7 @@ export class BattleManager extends Component {
 
       this.generateTileMap()
       this.generatePlayer()
+      this.genereteDoor()
       this.genereteEnemies()
     }
   }
@@ -82,6 +84,14 @@ export class BattleManager extends Component {
     const woodenSkeletonManager = enemy.addComponent(WoodenSkeletonManager)
     await woodenSkeletonManager.init()
     DataManager.Instance.enemies.push(woodenSkeletonManager)
+  }
+
+  async genereteDoor() {
+    const door = createUINode()
+    door.setParent(this.stage)
+    const doorManager = door.addComponent(DoorManager)
+    await doorManager.init()
+    DataManager.Instance.door = doorManager
   }
 
   adaptPos() {

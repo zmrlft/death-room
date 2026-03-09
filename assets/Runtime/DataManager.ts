@@ -1,12 +1,13 @@
 import Singleton from '../Base/Singleton'
 import { ITile } from '../Levels'
+import { DoorManager } from '../Scripts/Door/DoorManager'
 import type { PlayerManager } from '../Scripts/Player/PlayerManager'
 import { TileManager } from '../Scripts/Tile/TileManager'
 import type { WoodenSkeletonManager } from '../Scripts/WoodenSkeleton/WoodenSkeletonManager'
 
 export default class DataManager extends Singleton {
   enemies: WoodenSkeletonManager[] = []
-  door: {}
+  door: DoorManager
   bursts: any
   player: PlayerManager
   tileInfo: Array<Array<TileManager>>
@@ -21,6 +22,7 @@ export default class DataManager extends Singleton {
     this.mapRowCount = 0
     this.tileInfo = []
     this.player = null
+    this.door = null
     this.enemies = []
   }
   static get Instance() {

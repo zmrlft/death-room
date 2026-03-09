@@ -23,4 +23,12 @@ const levels = {
   level2,
 }
 
+export interface IEntity {
+  x: number
+  y: number
+  direction: DIRECTION_ENUM
+  state: ENTITY_STATE_ENUM
+  type: ENTITY_TYPE_ENUM
+}
+
 export default levels
