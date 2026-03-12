@@ -14,35 +14,23 @@ import EventManager from '../../Runtime/EventManager'
 import { WoodenSkeletonStateMachine } from './WoodenSkeletonStateMachine'
 import { EntityManager } from '../../Base/EntityManager'
 import DataManager from '../../Runtime/DataManager'
+import { EnemyManager } from '../../Base/EnemyManager'
+import { IENTITY } from '../../Levels'
 const { ccclass, property } = _decorator
 
 @ccclass('WoodenSkeletonManager')
-export class WoodenSkeletonManager extends EntityManager {
-  async init() {
+export class WoodenSkeletonManager extends EnemyManager {
+  async init(params: IENTITY) {
     this.fsm = this.addComponent(WoodenSkeletonStateMachine)
     await this.fsm.init()
-    super.init({
-      x: 2,
-      y: 4,
-      type: ENTITY_TYPE_ENUM.SKELETON_WOODEN,
-      direction: DIRECTION_ENUM.TOP,
-      state: ENTITY_STATE_ENUM.IDLE,
-    })
+    super.init(params)
 
     EventManager.Instance.on(EVENT_ENUM.PLAY_MOVE_END, this.onAttack, this)
-    EventManager.Instance.on(EVENT_ENUM.ATTACK_ENEMY, this.onDead, this)
-  }
-  onDead(id: string) {
-    if (this.state === ENTITY_STATE_ENUM.DEATH) return
-    if (this.id === id) {
-      this.state = ENTITY_STATE_ENUM.DEATH
-    }
   }
 
-  protected onDestroy(): void {
+  onDestroy(): void {
     super.onDestroy()
     EventManager.Instance.off(EVENT_ENUM.PLAY_MOVE_END, this.onAttack)
-    EventManager.Instance.off(EVENT_ENUM.ATTACK_ENEMY, this.onDead)
   }
 
   onAttack() {
