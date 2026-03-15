@@ -25,12 +25,12 @@ export class WoodenSkeletonManager extends EnemyManager {
     await this.fsm.init()
     super.init(params)
 
-    EventManager.Instance.on(EVENT_ENUM.PLAY_MOVE_END, this.onAttack, this)
+    EventManager.Instance.on(EVENT_ENUM.PLAYER_MOVE_END, this.onAttack, this)
   }
 
   onDestroy(): void {
     super.onDestroy()
-    EventManager.Instance.off(EVENT_ENUM.PLAY_MOVE_END, this.onAttack)
+    EventManager.Instance.off(EVENT_ENUM.PLAYER_MOVE_END, this.onAttack)
   }
 
   onAttack() {

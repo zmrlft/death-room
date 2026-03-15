@@ -22,6 +22,7 @@ export class EntityManager extends Component {
   fsm: PlayerStateMachine
   type: ENTITY_TYPE_ENUM
 
+  protected transform: UITransform
   private _direction: DIRECTION_ENUM
   private _state: ENTITY_STATE_ENUM
 

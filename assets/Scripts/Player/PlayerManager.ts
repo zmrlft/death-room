@@ -15,6 +15,8 @@ import { PlayerStateMachine } from './PlayerStateMachine'
 import { EntityManager } from '../../Base/EntityManager'
 import DataManager from '../../Runtime/DataManager'
 import { IENTITY } from '../../Levels'
+import { EnemyManager } from '../../Base/EnemyManager'
+import { BurstManager } from '../Burst/BurstManager'
 const { ccclass, property } = _decorator
 
 @ccclass('PlayerManager')
@@ -57,7 +59,7 @@ export class PlayerManager extends EntityManager {
       this.x = this.targetX
       this.y = this.targetY
       this.isMoving = false
-      EventManager.Instance.emit(EVENT_ENUM.PLAY_MOVE_END)
+      EventManager.Instance.emit(EVENT_ENUM.PLAYER_MOVE_END)
     }
   }
 
@@ -115,8 +117,8 @@ export class PlayerManager extends EntityManager {
       } else if (this.direction === DIRECTION_ENUM.RIGHT) {
         this.direction = DIRECTION_ENUM.TOP
       }
-      EventManager.Instance.emit(EVENT_ENUM.PLAY_MOVE_END)
       this.state = ENTITY_STATE_ENUM.TURNLEFT
+      EventManager.Instance.emit(EVENT_ENUM.PLAYER_MOVE_END)
     } else if (inputDirection === CONTROLLER_ENUM.TURNRIGHT) {
       if (this.direction === DIRECTION_ENUM.TOP) {
         this.direction = DIRECTION_ENUM.RIGHT
@@ -127,8 +129,8 @@ export class PlayerManager extends EntityManager {
       } else if (this.direction === DIRECTION_ENUM.RIGHT) {
         this.direction = DIRECTION_ENUM.BOTTOM
       }
-      EventManager.Instance.emit(EVENT_ENUM.PLAY_MOVE_END)
       this.state = ENTITY_STATE_ENUM.TURNRIGHT
+      EventManager.Instance.emit(EVENT_ENUM.PLAYER_MOVE_END)
     }
   }
 
@@ -178,13 +180,13 @@ export class PlayerManager extends EntityManager {
   willBlock(type: CONTROLLER_ENUM) {
     const { targetX: x, targetY: y, direction } = this
     const { tileInfo: tileInfo } = DataManager.Instance
-    // const enemies: EnemyManager[] = DataManager.Instance.enemies.filter(
-    //   (enemy: EnemyManager) => enemy.state !== ENTITY_STATE_ENUM.DEATH,
-    // )
-    // const { x: doorX, y: doorY, state: doorState } = DataManager.Instance.door || {}
-    // const bursts: BurstManager[] = DataManager.Instance.bursts.filter(
-    //   (burst: BurstManager) => burst.state !== ENTITY_STATE_ENUM.DEATH,
-    // )
+    const enemies: EnemyManager[] = DataManager.Instance.enemies.filter(
+      (enemy: EnemyManager) => enemy.state !== ENTITY_STATE_ENUM.DEATH,
+    )
+    const { x: doorX, y: doorY, state: doorState } = DataManager.Instance.door || {}
+    const bursts: BurstManager[] = DataManager.Instance.bursts.filter(
+      (burst: BurstManager) => burst.state !== ENTITY_STATE_ENUM.DEATH,
+    )
 
     const { mapRowCount: row, mapColumnCount: column } = DataManager.Instance
 
@@ -204,33 +206,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[x]?.[playerNextY]
         const nextWeaponTile = tileInfo[x]?.[weaponNextY]
 
-        // //判断门
-        // if (
-        //   ((doorX === x && doorY === playerNextY) || (doorX === x && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKFRONT
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === x && doorY === playerNextY) || (doorX === x && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKFRONT
+          return true
+        }
 
-        // // 判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        // 判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === x && enemyY === weaponNextY) || (enemyX === x && enemyY === playerNextY)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKFRONT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === x && enemyY === weaponNextY) || (enemyX === x && enemyY === playerNextY)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKFRONT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -252,33 +254,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[x]?.[playerNextY]
         const nextWeaponTile = tileInfo[x]?.[weaponNextY]
 
-        // //判断门
-        // if (
-        //   ((doorX === x && doorY === playerNextY) || (doorX === x && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKBACK
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === x && doorY === playerNextY) || (doorX === x && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKBACK
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if (enemyX === x && enemyY === playerNextY) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKBACK
-        //     return true
-        //   }
-        // }
+          if (enemyX === x && enemyY === playerNextY) {
+            this.state = ENTITY_STATE_ENUM.BLOCKBACK
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -301,33 +303,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[x]?.[playerNextY]
         const nextWeaponTile = tileInfo[weaponNextX]?.[weaponNextY]
 
-        // //判断门
-        // if (
-        //   ((doorX === x && doorY === playerNextY) || (doorX === weaponNextX && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === x && doorY === playerNextY) || (doorX === weaponNextX && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === x && enemyY === playerNextY) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === x && enemyY === playerNextY) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -350,33 +352,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[x]?.[playerNextY]
         const nextWeaponTile = tileInfo[weaponNextX]?.[weaponNextY]
 
-        // //判断门
-        // if (
-        //   ((doorX === x && doorY === playerNextY) || (doorX === weaponNextX && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKLEFT
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === x && doorY === playerNextY) || (doorX === weaponNextX && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKLEFT
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === x && enemyY === playerNextY) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKLEFT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === x && enemyY === playerNextY) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKLEFT
+            return true
+          }
+        }
 
-        // // 判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        // 判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -403,33 +405,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[x]?.[playerNextY]
         const nextWeaponTile = tileInfo[x]?.[weaponNextY]
 
-        // //判断门
-        // if (
-        //   ((doorX === x && doorY === playerNextY) || (doorX === x && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKBACK
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === x && doorY === playerNextY) || (doorX === x && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKBACK
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if (enemyX === x && enemyY === playerNextY) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKBACK
-        //     return true
-        //   }
-        // }
+          if (enemyX === x && enemyY === playerNextY) {
+            this.state = ENTITY_STATE_ENUM.BLOCKBACK
+            return true
+          }
+        }
 
-        // // 判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        // 判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -451,33 +453,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[x]?.[playerNextY]
         const nextWeaponTile = tileInfo[x]?.[weaponNextY]
 
-        // //判断门
-        // if (
-        //   ((doorX === x && doorY === playerNextY) || (doorX === x && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKFRONT
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === x && doorY === playerNextY) || (doorX === x && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKFRONT
+          return true
+        }
 
-        // // 判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        // 判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === x && enemyY === weaponNextY) || (enemyX === x && enemyY === playerNextY)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKFRONT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === x && enemyY === weaponNextY) || (enemyX === x && enemyY === playerNextY)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKFRONT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -500,33 +502,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[x]?.[playerNextY]
         const nextWeaponTile = tileInfo[weaponNextX]?.[weaponNextY]
 
-        //判断门
-        // if (
-        //   ((doorX === x && doorY === playerNextY) || (doorX === weaponNextX && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKLEFT
-        //   return true
-        // }
+        // 判断门
+        if (
+          ((doorX === x && doorY === playerNextY) || (doorX === weaponNextX && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKLEFT
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === x && enemyY === playerNextY) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKLEFT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === x && enemyY === playerNextY) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKLEFT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -549,33 +551,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[x]?.[playerNextY]
         const nextWeaponTile = tileInfo[weaponNextX]?.[weaponNextY]
 
-        // //判断门
-        // if (
-        //   ((doorX === x && doorY === playerNextY) || (doorX === weaponNextX && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === x && doorY === playerNextY) || (doorX === weaponNextX && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === x && enemyY === playerNextY) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === x && enemyY === playerNextY) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === x && burst.y === playerNextY) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -604,33 +606,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[playerNextX]?.[y]
         const nextWeaponTile = tileInfo[weaponNextX]?.[weaponNextY]
 
-        //判断门
-        // if (
-        //   ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKLEFT
-        //   return true
-        // }
+        // 判断门
+        if (
+          ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKLEFT
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKLEFT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKLEFT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -654,33 +656,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[playerNextX]?.[y]
         const nextWeaponTile = tileInfo[weaponNextX]?.[weaponNextY]
 
-        // //判断门
-        // if (
-        //   ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -703,33 +705,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[playerNextX]?.[y]
         const nextWeaponTile = tileInfo[weaponNextX]?.[y]
 
-        // //判断门
-        // if (
-        //   ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === y)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKFRONT
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === y)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKFRONT
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === y)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKFRONT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === y)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKFRONT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -752,33 +754,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[playerNextX]?.[y]
         const nextWeaponTile = tileInfo[weaponNextX]?.[y]
 
-        // //判断门
-        // if (
-        //   ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === y)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKBACK
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === y)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKBACK
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if (enemyX === playerNextX && enemyY === y) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKBACK
-        //     return true
-        //   }
-        // }
+          if (enemyX === playerNextX && enemyY === y) {
+            this.state = ENTITY_STATE_ENUM.BLOCKBACK
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -806,33 +808,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[playerNextX]?.[y]
         const nextWeaponTile = tileInfo[weaponNextX]?.[weaponNextY]
 
-        // //判断门
-        // if (
-        //   ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKRIGHT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -855,33 +857,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[playerNextX]?.[y]
         const nextWeaponTile = tileInfo[weaponNextX]?.[weaponNextY]
 
-        // //判断门
-        // if (
-        //   ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === weaponNextY)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKLEFT
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === weaponNextY)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKLEFT
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKLEFT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === weaponNextY)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKLEFT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -903,33 +905,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[playerNextX]?.[y]
         const nextWeaponTile = tileInfo[weaponNextX]?.[y]
 
-        // //判断门
-        // if (
-        //   ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === y)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKBACK
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === y)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKBACK
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if (enemyX === playerNextX && enemyY === y) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKBACK
-        //     return true
-        //   }
-        // }
+          if (enemyX === playerNextX && enemyY === y) {
+            this.state = ENTITY_STATE_ENUM.BLOCKBACK
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -951,33 +953,33 @@ export class PlayerManager extends EntityManager {
         const nextPlayerTile = tileInfo[playerNextX]?.[y]
         const nextWeaponTile = tileInfo[weaponNextX]?.[y]
 
-        // //判断门
-        // if (
-        //   ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === y)) &&
-        //   doorState !== ENTITY_STATE_ENUM.DEATH
-        // ) {
-        //   this.state = ENTITY_STATE_ENUM.BLOCKFRONT
-        //   return true
-        // }
+        //判断门
+        if (
+          ((doorX === playerNextX && doorY === y) || (doorX === weaponNextX && doorY === y)) &&
+          doorState !== ENTITY_STATE_ENUM.DEATH
+        ) {
+          this.state = ENTITY_STATE_ENUM.BLOCKFRONT
+          return true
+        }
 
-        // //判断敌人
-        // for (let i = 0; i < enemies.length; i++) {
-        //   const enemy = enemies[i]
-        //   const { x: enemyX, y: enemyY } = enemy
+        //判断敌人
+        for (let i = 0; i < enemies.length; i++) {
+          const enemy = enemies[i]
+          const { x: enemyX, y: enemyY } = enemy
 
-        //   if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === y)) {
-        //     this.state = ENTITY_STATE_ENUM.BLOCKFRONT
-        //     return true
-        //   }
-        // }
+          if ((enemyX === playerNextX && enemyY === y) || (enemyX === weaponNextX && enemyY === y)) {
+            this.state = ENTITY_STATE_ENUM.BLOCKFRONT
+            return true
+          }
+        }
 
-        // //判断地裂陷阱
-        // if (
-        //   bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
-        //   (!nextWeaponTile || nextWeaponTile.turnable)
-        // ) {
-        //   return false
-        // }
+        //判断地裂陷阱
+        if (
+          bursts.some(burst => burst.x === playerNextX && burst.y === y) &&
+          (!nextWeaponTile || nextWeaponTile.turnable)
+        ) {
+          return false
+        }
 
         //最后判断地图元素
         if (nextPlayerTile && nextPlayerTile.moveable && (!nextWeaponTile || nextWeaponTile.turnable)) {
@@ -1006,36 +1008,36 @@ export class PlayerManager extends EntityManager {
         nextX = x + 1
       }
 
-      // //判断门
-      // if (
-      //   ((doorX === x && doorY === nextY) ||
-      //     (doorX === nextX && doorY === y) ||
-      //     (doorX === nextX && doorY === nextY)) &&
-      //   doorState !== ENTITY_STATE_ENUM.DEATH
-      // ) {
-      //   this.state = ENTITY_STATE_ENUM.BLOCKTURNLEFT
-      //   return true
-      // }
+      //判断门
+      if (
+        ((doorX === x && doorY === nextY) ||
+          (doorX === nextX && doorY === y) ||
+          (doorX === nextX && doorY === nextY)) &&
+        doorState !== ENTITY_STATE_ENUM.DEATH
+      ) {
+        this.state = ENTITY_STATE_ENUM.BLOCKTURNLEFT
+        return true
+      }
 
-      // //判断敌人
-      // for (let i = 0; i < enemies.length; i++) {
-      //   const enemy = enemies[i]
-      //   const { x: enemyX, y: enemyY } = enemy
+      //判断敌人
+      for (let i = 0; i < enemies.length; i++) {
+        const enemy = enemies[i]
+        const { x: enemyX, y: enemyY } = enemy
 
-      //   if (enemyX === nextX && enemyY === y) {
-      //     this.state = ENTITY_STATE_ENUM.BLOCKTURNLEFT
+        if (enemyX === nextX && enemyY === y) {
+          this.state = ENTITY_STATE_ENUM.BLOCKTURNLEFT
 
-      //     return true
-      //   } else if (enemyX === nextX && enemyY === nextY) {
-      //     this.state = ENTITY_STATE_ENUM.BLOCKTURNLEFT
+          return true
+        } else if (enemyX === nextX && enemyY === nextY) {
+          this.state = ENTITY_STATE_ENUM.BLOCKTURNLEFT
 
-      //     return true
-      //   } else if (enemyX === x && enemyY === nextY) {
-      //     this.state = ENTITY_STATE_ENUM.BLOCKTURNLEFT
+          return true
+        } else if (enemyX === x && enemyY === nextY) {
+          this.state = ENTITY_STATE_ENUM.BLOCKTURNLEFT
 
-      //     return true
-      //   }
-      // }
+          return true
+        }
+      }
 
       //最后判断地图元素
       if (
@@ -1067,36 +1069,36 @@ export class PlayerManager extends EntityManager {
         nextX = x + 1
       }
 
-      // //判断门
-      // if (
-      //   ((doorX === x && doorY === nextY) ||
-      //     (doorX === nextX && doorY === y) ||
-      //     (doorX === nextX && doorY === nextY)) &&
-      //   doorState !== ENTITY_STATE_ENUM.DEATH
-      // ) {
-      //   this.state = ENTITY_STATE_ENUM.BLOCKTURNRIGHT
-      //   return true
-      // }
+      //判断门
+      if (
+        ((doorX === x && doorY === nextY) ||
+          (doorX === nextX && doorY === y) ||
+          (doorX === nextX && doorY === nextY)) &&
+        doorState !== ENTITY_STATE_ENUM.DEATH
+      ) {
+        this.state = ENTITY_STATE_ENUM.BLOCKTURNRIGHT
+        return true
+      }
 
-      // //判断敌人
-      // for (let i = 0; i < enemies.length; i++) {
-      //   const enemy = enemies[i]
-      //   const { x: enemyX, y: enemyY } = enemy
+      //判断敌人
+      for (let i = 0; i < enemies.length; i++) {
+        const enemy = enemies[i]
+        const { x: enemyX, y: enemyY } = enemy
 
-      //   if (enemyX === nextX && enemyY === y) {
-      //     this.state = ENTITY_STATE_ENUM.BLOCKTURNRIGHT
+        if (enemyX === nextX && enemyY === y) {
+          this.state = ENTITY_STATE_ENUM.BLOCKTURNRIGHT
 
-      //     return true
-      //   } else if (enemyX === nextX && enemyY === nextY) {
-      //     this.state = ENTITY_STATE_ENUM.BLOCKTURNRIGHT
+          return true
+        } else if (enemyX === nextX && enemyY === nextY) {
+          this.state = ENTITY_STATE_ENUM.BLOCKTURNRIGHT
 
-      //     return true
-      //   } else if (enemyX === x && enemyY === nextY) {
-      //     this.state = ENTITY_STATE_ENUM.BLOCKTURNRIGHT
+          return true
+        } else if (enemyX === x && enemyY === nextY) {
+          this.state = ENTITY_STATE_ENUM.BLOCKTURNRIGHT
 
-      //     return true
-      //   }
-      // }
+          return true
+        }
+      }
 
       //最后判断地图元素
       if (
