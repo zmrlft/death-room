@@ -2,6 +2,7 @@ import { _decorator, AnimationClip, Component, Animation, SpriteFrame } from 'cc
 import { FSM_PARAMS_TYPE_ENUM, PARAMS_NAME_ENUM } from '../Enums'
 import State from '../Base/State'
 import { SubStateMachine } from './SubStateMachine'
+import { SpikesStateMachine } from '../Scripts/Spikes/SpikesStateMachine'
 
 const { ccclass, property } = _decorator
 
@@ -30,7 +31,7 @@ export const getInitParamsNumber = () => {
 export default abstract class StateMachine extends Component {
   private _currentState: State | SubStateMachine = null
   params: Map<string, IParamsValue> = new Map()
-  stateMachines: Map<string, State | SubStateMachine> = new Map()
+  stateMachines: Map<string | number, State | SubStateMachine> = new Map()
   animationComponent: Animation
   waitList: Array<Promise<SpriteFrame[]>> = []
 

@@ -9,6 +9,13 @@ export interface IENTITY {
   state: ENTITY_STATE_ENUM
   type: ENTITY_TYPE_ENUM
 }
+
+export interface ISpikes {
+  x: number
+  y: number
+  type: ENTITY_TYPE_ENUM
+  count: number
+}
 export interface ITile {
   src: number | null
   type: TILE_TYPE_ENUM | null
