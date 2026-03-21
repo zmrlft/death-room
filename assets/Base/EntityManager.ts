@@ -61,4 +61,6 @@ export class EntityManager extends Component {
   protected update(): void {
     this.node.setPosition(this.x * TILE_WIDTH - TILE_WIDTH * 1.5, -this.y * TILE_HEIGHT + TILE_HEIGHT * 1.5)
   }
+
+  onDestroy() {}
 }

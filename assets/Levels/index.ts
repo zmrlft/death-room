@@ -1,6 +1,8 @@
 import level1 from './level1'
 import { DIRECTION_ENUM, ENTITY_STATE_ENUM, ENTITY_TYPE_ENUM, TILE_TYPE_ENUM } from '../Enums'
 import level2 from './level2'
+import { PlayerManager } from '../Scripts/Player/PlayerManager'
+import { EnemyManager } from '../Base/EnemyManager'
 
 export interface IENTITY {
   x: number
@@ -23,6 +25,11 @@ export interface ITile {
 
 export interface ILevel {
   mapInfo: Array<Array<ITile>>
+  player: IENTITY
+  enemies: IENTITY[]
+  spikes: ISpikes[]
+  bursts: IENTITY[]
+  door: IENTITY
 }
 
 const levels = {

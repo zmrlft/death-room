@@ -30,9 +30,9 @@ export class PlayerManager extends EntityManager {
     this.fsm = this.addComponent(PlayerStateMachine)
     await this.fsm.init()
     super.init(params)
-    ;((this.targetX = 2), (this.targetY = 8), (this.direction = DIRECTION_ENUM.TOP))
+    this.targetX = params.x
+    this.targetY = params.y
     this.state = ENTITY_STATE_ENUM.IDLE
-
     EventManager.Instance.on(EVENT_ENUM.PLAYER_CTRL, this.inputHandle, this)
     EventManager.Instance.on(EVENT_ENUM.ATTACK_PLAYER, this.onDead, this)
   }
@@ -65,6 +65,12 @@ export class PlayerManager extends EntityManager {
 
   onDead(type: ENTITY_STATE_ENUM) {
     this.state = type
+  }
+
+  onDestroy(): void {
+    super.onDestroy()
+    EventManager.Instance.off(EVENT_ENUM.PLAYER_CTRL, this.inputHandle)
+    EventManager.Instance.off(EVENT_ENUM.ATTACK_PLAYER, this.onDead)
   }
 
   inputHandle(inputDirection: CONTROLLER_ENUM) {

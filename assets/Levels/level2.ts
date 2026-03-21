@@ -1,5 +1,5 @@
-import { TILE_TYPE_ENUM } from '../Enums'
-import { ILevel } from './index'
+import { TILE_TYPE_ENUM, DIRECTION_ENUM, ENTITY_TYPE_ENUM, ENTITY_STATE_ENUM } from '../Enums'
+import { IEntity, ILevel, ISpikes } from './index'
 
 const mapInfo = [
   [
@@ -184,72 +184,50 @@ const mapInfo = [
   ],
 ]
 
-// const player: IEntity = {
-//   x: 0,
-//   y: 7,
-//   direction: DIRECTION_ENUM.TOP,
-//   state: ENTITY_STATE_ENUM.IDLE,
-//   type: ENTITY_TYPE_ENUM.PLAYER,
-// }
+const player: IEntity = {
+  x: 2,
+  y: 0,
+  direction: DIRECTION_ENUM.BOTTOM,
+  state: ENTITY_STATE_ENUM.IDLE,
+  type: ENTITY_TYPE_ENUM.PLAYER,
+}
 
-// const enemies: Array<IEntity> = [
-//   {
-//     x: 2,
-//     y: 6,
-//     direction: DIRECTION_ENUM.LEFT,
-//     state: ENTITY_STATE_ENUM.IDLE,
-//     type: ENTITY_TYPE_ENUM.SKELETON_WOODEN,
-//   },
-// ]
+const enemies: Array<IEntity> = [
+  {
+    x: 3,
+    y: 2,
+    direction: DIRECTION_ENUM.TOP,
+    state: ENTITY_STATE_ENUM.IDLE,
+    type: ENTITY_TYPE_ENUM.SKELETON_WOODEN,
+  },
+  {
+    x: 4,
+    y: 3,
+    direction: DIRECTION_ENUM.TOP,
+    state: ENTITY_STATE_ENUM.IDLE,
+    type: ENTITY_TYPE_ENUM.SKELETON_WOODEN,
+  },
+]
 
-// const spikes: Array<ISpikes> = []
+const spikes: Array<ISpikes> = []
 
-// const bursts: Array<IEntity> = [
-//   {
-//     x: 2,
-//     y: 3,
-//     state: ENTITY_STATE_ENUM.IDLE,
-//     type: ENTITY_TYPE_ENUM.BURST,
-//     direction: DIRECTION_ENUM.TOP,
-//   },
-//   {
-//     x: 2,
-//     y: 5,
-//     state: ENTITY_STATE_ENUM.IDLE,
-//     type: ENTITY_TYPE_ENUM.BURST,
-//     direction: DIRECTION_ENUM.TOP,
-//   },
-//   {
-//     x: 3,
-//     y: 3,
-//     state: ENTITY_STATE_ENUM.IDLE,
-//     type: ENTITY_TYPE_ENUM.BURST,
-//     direction: DIRECTION_ENUM.TOP,
-//   },
-//   {
-//     x: 3,
-//     y: 4,
-//     state: ENTITY_STATE_ENUM.IDLE,
-//     type: ENTITY_TYPE_ENUM.BURST,
-//     direction: DIRECTION_ENUM.TOP,
-//   },
-// ]
+const bursts: Array<IEntity> = []
 
-// const door: IEntity = {
-//   x: 7,
-//   y: 6,
-//   direction: DIRECTION_ENUM.LEFT,
-//   state: ENTITY_STATE_ENUM.IDLE,
-//   type: ENTITY_TYPE_ENUM.DOOR,
-// }
+const door: IEntity = {
+  x: 5,
+  y: 3,
+  direction: DIRECTION_ENUM.LEFT,
+  state: ENTITY_STATE_ENUM.IDLE,
+  type: ENTITY_TYPE_ENUM.DOOR,
+}
 
 const level: ILevel = {
   mapInfo,
-  // player,
-  // enemies,
-  // spikes,
-  // bursts,
-  // door,
+  player,
+  enemies,
+  spikes,
+  bursts,
+  door,
 }
 
 export default level
