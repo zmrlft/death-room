@@ -4,6 +4,7 @@ import { ITile } from '../Levels'
 import { BurstManager } from '../Scripts/Burst/BurstManager'
 import { DoorManager } from '../Scripts/Door/DoorManager'
 import type { PlayerManager } from '../Scripts/Player/PlayerManager'
+import { SmokeManager } from '../Scripts/Smoke/SmokeManager'
 import SpikesManager from '../Scripts/Spikes/SpikesManager'
 import { TileManager } from '../Scripts/Tile/TileManager'
 import type { WoodenSkeletonManager } from '../Scripts/WoodenSkeleton/WoodenSkeletonManager'
@@ -19,6 +20,7 @@ export default class DataManager extends Singleton {
   mapColumnCount: number = 0
   levelIndex: number = 1
   spikes: SpikesManager[]
+  smokes: SmokeManager[]
 
   reset() {
     this.mapInfo = []
@@ -30,6 +32,7 @@ export default class DataManager extends Singleton {
     this.enemies = []
     this.bursts = []
     this.spikes = []
+    this.smokes = []
   }
   static get Instance() {
     return super.GetInstance<DataManager>()

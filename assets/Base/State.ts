@@ -4,7 +4,7 @@ import ResourceManager from '../Runtime/ResourceManager'
 import StateMachine from './StateMachine'
 import { sortedSpriteFrame } from '../Utils'
 
-const ANIMATION_SPEED = 1 / 8
+export const ANIMATION_SPEED = 1 / 8
 export default class State {
   private animationClip: AnimationClip
   async init() {
@@ -17,7 +17,7 @@ export default class State {
     const track = new animation.ObjectTrack() // 创建一个对象轨道
     track.path = new animation.TrackPath().toComponent(Sprite).toProperty('spriteFrame') // 指定轨道路径，即指定目标对象为 "Foo" 子节点的 "position" 属性
     const frames: Array<[number, SpriteFrame]> = sortedSpriteFrame(spriteFrames).map((item, index) => [
-      ANIMATION_SPEED * index,
+      this.speed * index,
       item,
     ])
     track.channel.curve.assignSorted(frames)
@@ -25,7 +25,7 @@ export default class State {
     // 最后将轨道添加到动画剪辑以应用
     this.animationClip.addTrack(track)
     this.animationClip.name = this.path
-    this.animationClip.duration = frames.length * ANIMATION_SPEED
+    this.animationClip.duration = frames.length * this.speed
     this.animationClip.wrapMode = this.wrapMode
   }
 
@@ -38,6 +38,7 @@ export default class State {
     private fsm: StateMachine,
     private path: string,
     private wrapMode: AnimationClip.WrapMode = AnimationClip.WrapMode.Normal,
+    private speed: number = ANIMATION_SPEED,
   ) {
     this.init()
   }
