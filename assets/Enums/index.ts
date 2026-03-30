@@ -21,6 +21,11 @@ export enum EVENT_ENUM {
   PLAYER_BORN = 'PLAYER_BORN',
   PLAYER_MOVE_END = 'PLAYER_MOVE_END',
   SCREEN_SHAKE = 'SCREEN_SHAKE',
+  SHOW_SMOKE = 'SHOW_SMOKE',
+  RECORD_STEP = 'RECORD_STEP',
+  REVOKE_STEP = 'REVOKE_STEP',
+  RESTART_LEVEL = 'RESTART_LEVEL',
+  QUIT_BATTLE = 'QUIT_BATTLE',
 }
 
 export enum CONTROLLER_ENUM {
@@ -94,6 +99,7 @@ export enum ENTITY_TYPE_ENUM {
   SPIKES_TWO = 3,
   SPIKES_THREE = 4,
   SPIKES_FOUR = 5,
+  SMOKE = 'SMOKE',
 }
 
 /***
@@ -118,4 +124,10 @@ export enum SPIKES_COUNT_MAP_NUMBER_ENUM {
   THREE = 3,
   FOUR = 4,
   FIVE = 5,
+}
+
+export enum SCENE_ENUM {
+  Loading = 'Loading',
+  Start = 'Start',
+  Battle = 'Battle',
 }

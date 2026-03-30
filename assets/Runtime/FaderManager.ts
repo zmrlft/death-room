@@ -35,7 +35,7 @@ export default class FaderManager extends Singleton {
     await this.fader.fadeOut(duration)
   }
 
-  // async mask() {
-  //   await this.fader.mask()
-  // }
+  async mask() {
+    await this.fader.mask()
+  }
 }
