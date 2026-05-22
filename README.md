@@ -17,13 +17,9 @@ A turn-based puzzle game built with Cocos Creator 3.8.6. Navigate a grid-based m
 
 https://precious-tanuki-7ca972.netlify.app/
 
-## Build
+## Android
 
-```bash
-cocos build --platform web-mobile
-```
-
-Output is in `build/web-mobile/`.
+Download in the release
 
 ## Tech Stack
 

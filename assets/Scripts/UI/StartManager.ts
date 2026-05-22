@@ -1,6 +1,7 @@
 import { _decorator, Component, Node, director } from 'cc'
 import { SCENE_ENUM } from '../../Enums'
 import FaderManager from '../../Runtime/FaderManager'
+import { AdManager } from '../Ad/AdManager'
 const { ccclass } = _decorator
 
 @ccclass('StartManager')
@@ -8,6 +9,8 @@ export class StartManager extends Component {
   onLoad() {
     director.preloadScene(SCENE_ENUM.Battle)
     FaderManager.Instance.fadeOut(1000)
+
+    AdManager.Instance.initBanner()
 
     this.node.once(Node.EventType.TOUCH_START, this.handleStart, this)
   }
